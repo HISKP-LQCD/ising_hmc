@@ -1,0 +1,138 @@
+## Adopted from https://github.com/github/gitignore/blob/master/TeX.gitignore
+## changed to exclude ambiguous suffixes only in root directory, since e.g. *.log files in Data/ directory are valid tracking candidates
+## Core latex/pdflatex auxiliary files:
+*.aux
+*.lof
+*.log
+*.lot
+*.fls
+*.out
+*.toc
+# these rules might exclude image files for invalid figure formats etc.
+*.ps
+*.eps
+*.pdf
+!*/pics/*
+!*/plot/*
+# these rules might exclude target builds (pdf) in root directory etc.
+*.dvi
+*-converted-to.*
+## Bibliography auxiliary files (bibtex/biblatex/biber):
+*.bbl
+*.bcf
+*.blg
+*-blx.aux
+*-blx.bib
+*.brf
+*.run.xml
+## Build tool auxiliary files:
+*.fdb_latexmk
+*.synctex.gz
+*.synctex.gz(busy)
+*.pdfsync
+## Auxiliary and intermediate files from other packages:
+# algorithms
+/*.alg
+/*.loa
+# amsthm
+/*.thm
+# beamer
+/*.nav
+/*.snm
+/*.vrb
+# (e)ledmac/(e)ledpar
+/*.end
+/*.[1-9]
+/*.[1-9][0-9]
+/*.[1-9][0-9][0-9]
+/*.[1-9]R
+/*.[1-9][0-9]R
+/*.[1-9][0-9][0-9]R
+/*.eledsec[1-9]
+/*.eledsec[1-9]R
+/*.eledsec[1-9][0-9]
+/*.eledsec[1-9][0-9]R
+/*.eledsec[1-9][0-9][0-9]
+/*.eledsec[1-9][0-9][0-9]R
+# glossaries
+/*.acn
+/*.acr
+/*.glg
+/*.glo
+/*.gls
+# hyperref
+/*.brf
+# listings
+/*.lol
+# makeidx
+/*.idx
+/*.ilg
+/*.ind
+/*.ist
+# minitoc
+/*.maf
+/*.mtc
+/*.mtc[0-9]
+/*.mtc[0-9][0-9]
+# minted
+/*.pyg
+# morewrites
+/*.mw
+# nomencl
+/*.nlo
+# sagetex
+/*.sagetex.sage
+/*.sagetex.py
+/*.sagetex.scmd
+# sympy
+/*.sout
+/*.sympy
+sympy-plots-for-*.tex/
+# todonotes
+/*.tdo
+# xindy
+/*.xdy
+
+## additional file suffixes not mentioned above (project specific)
+# \RequirePackage recorder
+/*.dep
+# pgfplots, pgfplotstable
+/*.pgf-plot.gnuplot
+/*.pgf-plot.table
+/*.x.gnuplot
+/*.x.table
+# tikz externalize
+/*.figlist
+/*.makefile
+/*.auxlock
+
+## GSP Makefile
+/draft.flag
+/spellcheck-report.txt
+*.tex.unkwrd
+*.tex.chktex
+
+## editor scratch files
+# TeXStudio
+*.bak~
+# vim editor
+*.swp
+# Kile editor
+/*.backup
+
+## filesystem - stale NFS handle
+.nfs*
+
+## files produced by Vim
+*~
+
+## PDFs in data-directory might change very often
+data/*.pdf
+
+## whatever...
+*.lock
+
+## NOT USE AS DEFAULT!!!!
+*.o
+*.txt
+*.dat
