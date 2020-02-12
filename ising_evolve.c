@@ -269,20 +269,16 @@ void leap_frog_split(double *psi, double *p, double *phi, double *tanh_Jphi, uns
 
 void leap_frog(double *psi, double *p, double *phi, double *tanh_Jphi, unsigned *nnt, unsigned ns, unsigned nn, double h, double sq_J, double mass, unsigned nmd, double dt){
 	const double weight = nn+mass;
-	double force_sum;
 	unsigned i, k;
 
 	for(i = 0; i < ns; i++) psi[i] += dt/2*p[i];
 	for(k = 0; k < nmd; k++){
 		k_times_psi(psi, phi, mass, nnt, ns, nn);
 		apply_tanh_sq_J(phi, tanh_Jphi, sq_J, ns);
-		force_sum = 0;
 		for(i = 0; i < ns; i++){
 			p[i] += dt*p_dot(phi, tanh_Jphi, nnt, ns, nn, h, sq_J, weight, i);
-			force_sum += pow(p_dot(phi, tanh_Jphi, nnt, ns, nn, h, sq_J, weight, i),2);
 			psi[i] += dt*p[i];
 		}
-		printf("%g\n", sqrt(force_sum/ns));
 	}
 	for(i = 0; i < ns; i++){
 		psi[i] -= dt/2*p[i];

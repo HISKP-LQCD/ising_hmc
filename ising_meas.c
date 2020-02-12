@@ -54,7 +54,8 @@ void write_out(double *psi, double *magn, unsigned ns, unsigned sweeps, unsigned
 		out = fopen(out_name, "w");
 	}
 	for(i = 0; i < nr_meas; i++){
-		fprintf(out, "%.15g\t%.15g\t%.15g\t%.0f\n", magn[i], fabs(magn[i]), energy[i], accepted[i]);
+		const double m = magn[i];
+		fprintf(out, "%.15g\t%.15g\t%.15g\t%.15g\t%.0f\n", m, fabs(m), m*m, energy[i], accepted[i]);
 	}
 	fclose(out);
 }

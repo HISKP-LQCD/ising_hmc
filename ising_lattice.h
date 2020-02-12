@@ -12,4 +12,5 @@ unsigned *construct_lattice(char *geometry, FILE *input, unsigned *ns, unsigned 
 unsigned *construct_cubic(FILE *input, unsigned *ns, unsigned *nn, double **s);
 unsigned *construct_rectangular(FILE *input, unsigned *ns, unsigned *nn, double **s);
 unsigned *construct_triangular(FILE *input, unsigned *ns, unsigned *nn, double **s);
+unsigned *construct_alltoall(FILE *input, unsigned *ns, unsigned *nn, double **s);
 #endif

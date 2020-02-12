@@ -8,6 +8,8 @@ unsigned *construct_lattice(char *geometry, FILE *input, unsigned *ns, unsigned 
 		nnt = construct_rectangular(input, ns, nn, s);
 	}else if(!strcmp(geometry, "triangular")){
 		nnt = construct_triangular(input, ns, nn, s);
+	}else if(!strcmp(geometry, "alltoall")){
+		nnt = construct_alltoall(input, ns, nn, s);
 	}else{
 		printf("The geometry \"%s\" is not known!\n", geometry);
 		exit(0);
@@ -150,6 +152,28 @@ unsigned *construct_triangular(FILE *input, unsigned *ns, unsigned *nn, double *
 		nnt[i*neighbours+3] = i + ((i2+l2-1)%l2 - i2)*l1; // bottom left
 		nnt[i*neighbours+4] = nnt[i*neighbours+2] + (i1+l1-1)%l1 - i1; // top left
 		nnt[i*neighbours+5] = nnt[i*neighbours+3] + (i1+1)%l1 - i1; // bottom right
+	}
+
+	return nnt;
+}
+
+unsigned *construct_alltoall(FILE *input, unsigned *ns, unsigned *nn, double **s){
+	// connects every point to every other point
+	unsigned i, pos, k;
+	unsigned *nnt;
+
+	fscanf(input, "size=%u\n", ns);
+
+	*nn = *ns-1;
+
+	const unsigned size = *ns;
+	const unsigned neighbours = *nn;
+	*s = malloc(size * sizeof(double));
+	nnt = malloc(neighbours * size * sizeof(unsigned));
+
+	for(i = 0, pos = 0; i < size; i++){
+		for(k = 0; k < i; k++, pos++) nnt[pos] = k;
+		for(k = i+1; k < size; k++, pos++) nnt[pos] = k;
 	}
 
 	return nnt;
