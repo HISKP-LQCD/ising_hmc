@@ -11,7 +11,7 @@ go into the newly created directory `ising_hmc` and execute:
 
 ```
 make
-./ising_hmc example_input_2d.txt example_input_alltoall.txt
+./ising_hmc example_input_2d.dat example_input_alltoall.dat
 ```
 
 You are encouraged to replace the example-files with alternative ones including
