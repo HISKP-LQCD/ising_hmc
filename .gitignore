@@ -132,6 +132,9 @@ data/*.pdf
 ## whatever...
 *.lock
 
+## executable
+ising_hmc
+
 ## NOT USE AS DEFAULT!!!!
 *.o
 *.txt

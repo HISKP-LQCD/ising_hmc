@@ -1,0 +1,17 @@
+J=0.1
+h=0
+beta=1
+mass=1e-5
+nr. thermalisation steps=1000
+nr. trajectories=100000
+trajectory length=1
+nr. MD-steps=7
+inversion frequency=10
+measurement frequency=1
+start type=cold
+start from file=0
+write config to file=0
+output file name=example_output_alltoall.txt
+integrator=leapfrog
+geometry=alltoall
+size=10
