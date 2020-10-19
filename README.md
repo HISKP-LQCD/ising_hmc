@@ -16,3 +16,8 @@ make
 
 You are encouraged to replace the example-files with alternative ones including
 different parameters.
+
+Every run generates an output file containing five columns, namely the 
+magnetisation, its absolute value, its square, the energy per site and an 
+indicator if this trajectory has been accepted (1 means accepted, 0 rejected). 
+Every line corresponds to a different measured trajectory.
