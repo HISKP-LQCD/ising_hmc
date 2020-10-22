@@ -51,17 +51,20 @@ FILE *read_constants(char *file_name, double *J, double *h, double *beta, double
 	return input;
 }
 
-void set_constants(double *J, double *h, double beta, double *sq_J, double length, unsigned nmd, double *dt, unsigned nn, double mass, double *kappa){
+void set_constants(double *nnc, double *J, double *h, double beta, double *sq_J, double length, unsigned nmd, double *dt, unsigned ns, unsigned nn, double mass, double *kappa){
 	*J = beta*(*J);
 	*h = beta*(*h);
 	*sq_J = sqrt(*J);
 	*dt = length/nmd;
-	*kappa = 1./(2*nn+mass);
+	if(nnc)
+		*kappa = scalar_product(nnc+ns*nn, nnc+ns*(nn+1), ns)/ns;
+	else
+		*kappa = 1./(2*nn+mass);
 }
 
-double *initialize(double *psi, unsigned *nnt, double *J, double *h, double beta, double *sq_J, double length, unsigned nmd, double *dt, double mass, double *kappa, unsigned ns, unsigned nn, char *start, char *restart, unsigned therm, unsigned flip_freq, char *integrator, gsl_rng *r){
-	double *container = malloc(6*ns*sizeof(double)); // {p, phi, tanh_Jphi, psi_old, phi_old, tanh_Jphi_old}
-	set_constants(J, h, beta, sq_J, length, nmd, dt, nn, mass, kappa);
+double *initialize(double *psi, unsigned *nnt, double *nnc, double *J, double *h, double beta, double *sq_J, double length, unsigned nmd, double *dt, double mass, double *kappa, unsigned ns, unsigned nn, char *start, char *restart, unsigned therm, unsigned flip_freq, char *integrator, gsl_rng *r){
+	double *container = malloc(7*ns*sizeof(double)); // {p, phi, tanh_Jphi, K*tanh_Jphi, psi_old, phi_old, tanh_Jphi_old}
+	set_constants(nnc, J, h, beta, sq_J, length, nmd, dt, ns, nn, mass, kappa);
 	if(strcmp(restart, "0")){
 		FILE *config = fopen(restart, "r");
 		if(!config){
@@ -76,30 +79,30 @@ double *initialize(double *psi, unsigned *nnt, double *J, double *h, double beta
 
 		if(!strcmp(start, "hot")){
 			for(k = 0; k < ns; k++) psi[k] = gsl_ran_gaussian_ziggurat(r, *sq_J);
-			psi_bar = sum_vector(psi, ns)/ns;
 		}else if(!strcmp(start, "cold")){
 			double psi_0 = (*h >= 0? 1: -1) * (*sq_J) + (*h)*(*kappa)/(*sq_J);
 			for(k = 0; k < ns; k++) psi[k] = psi_0;
-			psi_bar = psi_0;
 		}else if(!strcmp(start, "zero")){
 			for(k = 0; k < ns; k++) psi[k] = 0;
-			psi_bar = 0;
 		}else{
 			printf("Start type \"%s\" is not defined!\n", start);
 			exit(0);
 		}
 
+		psi_bar = average(psi, nnc, ns, nn);
+
 		for(k = 0; k < therm; k++){
-			trajectory(psi, container, nnt, ns, nn, *h, *sq_J, mass, nmd, *dt, &psi_bar, integrator, r);
+			trajectory(psi, container, nnt, nnc, ns, nn, *h, *sq_J, mass, nmd, *dt, &psi_bar, integrator, r);
 			if(k%flip_freq == 0) global_flip(psi, &psi_bar, *h, *sq_J, ns, r);
 		}
 	}
 	return container;
 }
 
-void free_all(double *psi, double *p, unsigned *nnt, double *magn){
+void free_all(double *psi, double *p, unsigned *nnt, double *nnc, double *magn){
 	free(psi);
 	free(p);
 	free(nnt);
+	free(nnc);
 	free(magn);
 }

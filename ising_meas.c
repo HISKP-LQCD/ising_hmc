@@ -12,17 +12,17 @@ double global_energy(double *phi, double *tanh_Jphi, double psi_bar, double sq_J
 	return sum;
 }
 
-double *measure(double *psi, double *p, unsigned *nnt, double sq_J, double h, double mass, double kappa, unsigned ns, unsigned nn, unsigned sweeps, unsigned skip, unsigned flip_freq, unsigned nmd, double dt, char *integrator, gsl_rng *r){
+double *measure(double *psi, double *p, unsigned *nnt, double *nnc, double sq_J, double h, double mass, double kappa, unsigned ns, unsigned nn, unsigned sweeps, unsigned skip, unsigned flip_freq, unsigned nmd, double dt, char *integrator, gsl_rng *r){
 	unsigned nr_meas = sweeps/skip;
 	unsigned i, k;
 	short acc;
-	double psi_bar = sum_vector(psi, ns)/ns;
+	double psi_bar = average(psi, nnc, ns, nn);
 	double *magn = malloc(3*nr_meas * sizeof(double));
 	double *energy = magn+nr_meas;
 	double *accepted = magn+2*nr_meas;
 
 	for(i = 0; i < sweeps; i++){
-		acc = trajectory(psi, p, nnt, ns, nn, h, sq_J, mass, nmd, dt, &psi_bar, integrator, r);
+		acc = trajectory(psi, p, nnt, nnc, ns, nn, h, sq_J, mass, nmd, dt, &psi_bar, integrator, r);
 		if(i%flip_freq == 0) global_flip(psi, &psi_bar, h, sq_J, ns, r);
 		if(i%skip == 0){
 			k = i/skip;
