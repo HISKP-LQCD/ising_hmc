@@ -8,7 +8,7 @@
 void display_help(){
 	printf("You have to supply at least one file with input data!\n");
 	printf("The input file has to have the following format:\n\n");
-	printf("J=<coupling>\nh=<external field>\nbeta=<inverse temperature>\nnr. thermalisation steps=<multiple of log(lattice size) sweeps performed before measurement>\nnr. sweeps=<length of measurement>\nmeasurement frequency=<skip sweeps for less autocorrelation, negative for saving the state as well>\nstart type=<hot/cold/zero>\nstart from file=<file with thermalized config, or 0 for fresh start>\nwrite config to file=<file to store the last config, or 0 if not required>\noutput file name=<file for measurements, they will be saved in columns: m | abs(m) | m^2 | beta*E>\ngeometry=<cubic/rectangular/triangular/alltoall/generic>\n");
+	printf("J=<coupling>\nh=<external field>\nbeta=<inverse temperature>\nnr. thermalisation steps=<updates performed before measurement>\nnr. sweeps=<length of measurement>\nmeasurement frequency=<skip sweeps for less autocorrelation, negative for saving the state as well>\nstart type=<hot/cold/zero>\nstart from file=<file with thermalized config, or 0 for fresh start>\nwrite config to file=<file to store the last config, or 0 if not required>\noutput file name=<file for measurements, they will be saved in columns: m | abs(m) | m^2 | beta*E>\ngeometry=<cubic/rectangular/triangular/alltoall/generic>\n");
 	printf("<Further geometry-specific information>\n\n");
 	printf("See function construct_lattice() and called constructors in code for more details.\n");
 	printf("Exiting.\n");
