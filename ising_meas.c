@@ -1,5 +1,35 @@
 #include "ising_meas.h"
 
+FILE *file_state(char *out_name, char *restart, int skip){
+	char out_state[500];
+	FILE *out = NULL;
+
+	if(skip < 0){
+		sprintf(out_state, "%s.state", out_name);
+		if(strcmp(restart, "0")){
+			out = fopen(out_state, "a");
+		}else{
+			out = fopen(out_state, "w");
+		}
+	}
+	return out;
+}
+
+void print_state(FILE *out, double *psi, double *nnc, double sq_J, double h, double kappa, unsigned ns, unsigned nn, int skip){
+	if(skip < 0){
+		const double inv_sq_J = 1./sq_J;
+		if(nnc){
+			const double shift = h*inv_sq_J*inv_sq_J;
+			nnc += ns*(nn+1);
+			for(unsigned i = 0; i < ns; i++) fprintf(out, "%.15g\t", psi[i]*inv_sq_J - nnc[i]*shift);
+		}else{
+			const double shift = h*kappa/(sq_J*sq_J);
+			for(unsigned i = 0; i < ns; i++) fprintf(out, "%.15g\t", psi[i]*inv_sq_J - shift);
+		}
+		fprintf(out, "\n");
+	}
+}
+
 double magnetization(double psi_bar, double sq_J, double h, double kappa){
 	return psi_bar/sq_J - h*kappa/(sq_J*sq_J);
 }
@@ -12,31 +42,38 @@ double global_energy(double *phi, double *tanh_Jphi, double psi_bar, double sq_J
 	return sum;
 }
 
-double *measure(double *psi, double *p, unsigned *nnt, double *nnc, double sq_J, double h, double mass, double kappa, unsigned ns, unsigned nn, unsigned sweeps, unsigned skip, unsigned flip_freq, unsigned nmd, double dt, char *integrator, gsl_rng *r){
-	unsigned nr_meas = sweeps/skip;
+double *measure(double *psi, double *p, unsigned *nnt, double *nnc, double sq_J, double h, double mass, double kappa, unsigned ns, unsigned nn, unsigned sweeps, int skip, unsigned flip_freq, unsigned nmd, double dt, char *integrator, char *restart, char *out_name, gsl_rng *r){
+	const unsigned skip_freq = abs(skip);
+	const unsigned nr_meas = sweeps/skip_freq;
 	unsigned i, k;
 	short acc;
 	double psi_bar = average(psi, nnc, ns, nn);
 	double *magn = malloc(3*nr_meas * sizeof(double));
 	double *energy = magn+nr_meas;
 	double *accepted = magn+2*nr_meas;
+	FILE *out_state = file_state(out_name, restart, skip);
 
 	for(i = 0; i < sweeps; i++){
 		acc = trajectory(psi, p, nnt, nnc, ns, nn, h, sq_J, mass, nmd, dt, &psi_bar, integrator, r);
 		if(i%flip_freq == 0) global_flip(psi, &psi_bar, h, sq_J, ns, r);
-		if(i%skip == 0){
-			k = i/skip;
+		if(i%skip_freq == 0){
+			k = i/skip_freq;
 			magn[k] = magnetization(psi_bar, sq_J, h, kappa);
 			energy[k] = global_energy(p+ns, p+2*ns, psi_bar, sq_J, h, mass, kappa, ns, nn);
 			accepted[k] = acc;
+
+			print_state(out_state, psi, nnc, sq_J, h, kappa, ns, nn, skip);
 		}
 	}
+
+	if(out_state) fclose(out_state);
 
 	return magn;
 }
 
-void write_out(double *psi, double *magn, unsigned ns, unsigned sweeps, unsigned skip, char *restart, char *save, char *out_name){
-	const unsigned nr_meas = sweeps/skip;
+void write_out(double *psi, double *magn, unsigned ns, unsigned sweeps, int skip, char *restart, char *save, char *out_name){
+	const unsigned skip_freq = abs(skip);
+	const unsigned nr_meas = sweeps/skip_freq;
 	unsigned i;
 	double *energy = magn+nr_meas;
 	double *accepted = magn+2*nr_meas;

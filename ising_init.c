@@ -21,7 +21,7 @@ void print_vec(double *vec, unsigned n){
 	for(i = 0; i < n; i++) printf("%g\n", vec[i]);
 }
 
-FILE *read_constants(char *file_name, double *J, double *h, double *beta, double *mass, unsigned *therm, unsigned *sweeps, double *length, unsigned *nmd, unsigned *flip_freq, unsigned *skip, char *start, char *restart, char *save, char *out_name, char *integrator, char *geometry){
+FILE *read_constants(char *file_name, double *J, double *h, double *beta, double *mass, unsigned *therm, unsigned *sweeps, double *length, unsigned *nmd, unsigned *flip_freq, int *skip, char *start, char *restart, char *save, char *out_name, char *integrator, char *geometry){
 	FILE *input = fopen(file_name, "r");
 	int check_sum = 0;
 	if(!input){
@@ -37,7 +37,7 @@ FILE *read_constants(char *file_name, double *J, double *h, double *beta, double
 	check_sum += fscanf(input, "trajectory length=%lg\n", length);
 	check_sum += fscanf(input, "nr. MD-steps=%u\n", nmd);
 	check_sum += fscanf(input, "inversion frequency=%u\n", flip_freq);
-	check_sum += fscanf(input, "measurement frequency=%u\n", skip);
+	check_sum += fscanf(input, "measurement frequency=%d\n", skip);
 	check_sum += fscanf(input, "start type=%s\n", start);
 	check_sum += fscanf(input, "start from file=%s\n", restart);
 	check_sum += fscanf(input, "write config to file=%s\n", save);
