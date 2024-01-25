@@ -208,6 +208,7 @@ short trajectory(double complex *psi, double *p, unsigned *nnt, double *nnc, uns
 	energy_old = hamilton(psi, phi, p, mass, sq_J, h, ns, nn, nl, dim, fft);
 	integrate(psi, p, phi, tanh_Jphi, nnt, nnc, ns, nn, nl, dim, h, sq_J, mass, nmd, dt, integrator, fft);
 	if(psi_bar) *psi_bar = average(tanh_Jphi, nnc, ns, nn);
+	//if(psi_bar) *psi_bar = average(phi, nnc, ns, nn);
 	energy = hamilton(psi, phi, p, mass, sq_J, h, ns, nn, nl, dim, fft);
 
 	printf("%g\t%g\t%g\t%g\n", energy_old, energy, energy-energy_old, exp(energy_old-energy));
