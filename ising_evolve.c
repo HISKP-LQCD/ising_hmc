@@ -211,7 +211,7 @@ short trajectory(double complex *psi, double *p, unsigned *nnt, double *nnc, uns
 	//if(psi_bar) *psi_bar = average(phi, nnc, ns, nn);
 	energy = hamilton(psi, phi, p, mass, sq_J, h, ns, nn, nl, dim, fft);
 
-	printf("%g\t%g\t%g\t%g\n", energy_old, energy, energy-energy_old, exp(energy_old-energy));
+	//printf("%g\t%g\t%g\t%g\n", energy_old, energy, energy-energy_old, exp(energy_old-energy));
 
 	if(exp(energy_old-energy) < gsl_rng_uniform(r)){
 		// reject (nothing to be done if accepted)
