@@ -1,5 +1,5 @@
 MYFLAGS=-Wall -pedantic -Wno-unused-result -O2
-MYLIBS=-lm -lgsl -lgslcblas
+MYLIBS=-lm -lgsl -lgslcblas -lfftw3
 MYFILES=hmc init lattice aux evolve meas
 
 all: ising_hmc
@@ -11,7 +11,7 @@ ising_hmc: $(MYFILES:%=ising_%.o)
 
 # For every object .o check for .c and .h file with same name
 # Compile first dependency $< (the .c file)
-%.o: %.c %.h
+%.o: %.c %.h Makefile
 	gcc $(MYFLAGS) -c $<
 
 clean:

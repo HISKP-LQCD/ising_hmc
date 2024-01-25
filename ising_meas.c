@@ -31,38 +31,38 @@ void print_state(FILE *out, double *psi, double *nnc, double sq_J, double h, dou
 }
 
 double magnetization(double psi_bar, double sq_J, double h, double kappa){
+	// deprecated
 	return psi_bar/sq_J - h*kappa/(sq_J*sq_J);
 }
 
 double global_energy(double *phi, double *tanh_Jphi, double psi_bar, double sq_J, double h, double mass, double kappa, unsigned ns, unsigned nn){
 	double sum = sq_J*sq_J*(nn+mass)/2
-				+ h*h*kappa/(2*sq_J*sq_J)
-				- h*psi_bar/(2*sq_J)
-				- sq_J*scalar_product(phi, tanh_Jphi, ns)/(2*ns);
+				- sq_J*scalar_product(phi, tanh_Jphi, ns)/(2*ns)
+	            - h*psi_bar/2;
 	return sum;
 }
 
-double *measure(double *psi, double *p, unsigned *nnt, double *nnc, double sq_J, double h, double mass, double kappa, unsigned ns, unsigned nn, unsigned sweeps, int skip, unsigned flip_freq, unsigned nmd, double dt, char *integrator, char *restart, char *out_name, gsl_rng *r){
+double *measure(double complex *psi, double *p, unsigned *nnt, double *nnc, double sq_J, double h, double mass, double kappa, unsigned ns, unsigned nn, unsigned nl, unsigned dim, unsigned sweeps, int skip, unsigned flip_freq, unsigned nmd, double dt, char *integrator, char *restart, char *out_name, gsl_rng *r, const fftw_plan *fft){
 	const unsigned skip_freq = abs(skip);
 	const unsigned nr_meas = sweeps/skip_freq;
 	unsigned i, k;
 	short acc;
-	double psi_bar = average(psi, nnc, ns, nn);
+	double psi_bar = average(p+2*ns, nnc, ns, nn);
 	double *magn = malloc(3*nr_meas * sizeof(double));
 	double *energy = magn+nr_meas;
 	double *accepted = magn+2*nr_meas;
 	FILE *out_state = file_state(out_name, restart, skip);
 
 	for(i = 0; i < sweeps; i++){
-		acc = trajectory(psi, p, nnt, nnc, ns, nn, h, sq_J, mass, nmd, dt, &psi_bar, integrator, r);
-		if(i%flip_freq == 0) global_flip(psi, &psi_bar, h, sq_J, ns, r);
+		acc = trajectory(psi, p, nnt, nnc, ns, nn, nl, dim, h, sq_J, mass, nmd, dt, &psi_bar, integrator, r, fft);
+		//if(i%flip_freq == 0) global_flip(psi, &psi_bar, h, sq_J, ns, r);
 		if(i%skip_freq == 0){
 			k = i/skip_freq;
-			magn[k] = magnetization(psi_bar, sq_J, h, kappa);
+			magn[k] = psi_bar;
 			energy[k] = global_energy(p+ns, p+2*ns, psi_bar, sq_J, h, mass, kappa, ns, nn);
 			accepted[k] = acc;
 
-			print_state(out_state, psi, nnc, sq_J, h, kappa, ns, nn, skip);
+			print_state(out_state, p+ns, nnc, sq_J, h, kappa, ns, nn, skip);
 		}
 	}
 
@@ -71,7 +71,7 @@ double *measure(double *psi, double *p, unsigned *nnt, double *nnc, double sq_J,
 	return magn;
 }
 
-void write_out(double *psi, double *magn, unsigned ns, unsigned sweeps, int skip, char *restart, char *save, char *out_name){
+void write_out(double *phi, double *magn, unsigned ns, unsigned sweeps, int skip, char *restart, char *save, char *out_name){
 	const unsigned skip_freq = abs(skip);
 	const unsigned nr_meas = sweeps/skip_freq;
 	unsigned i;
@@ -81,7 +81,7 @@ void write_out(double *psi, double *magn, unsigned ns, unsigned sweeps, int skip
 
 	if(strcmp(save, "0")){
 		FILE *config = fopen(save, "w");
-		fwrite(psi, sizeof(double), ns, config);
+		fwrite(phi, sizeof(double), ns, config);
 		fclose(config);
 	}
 

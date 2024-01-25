@@ -1,17 +1,17 @@
 #include "ising_lattice.h"
 
-unsigned *construct_lattice(char *geometry, FILE *input, unsigned *ns, unsigned *nn, double **s, double **nnc){
+unsigned *construct_lattice(char *geometry, FILE *input, unsigned *ns, unsigned *nn, unsigned *nl, unsigned *dim, double **s, double **nnc){
 	unsigned *nnt;
 	if(!strcmp(geometry, "cubic")){
-		nnt = construct_cubic(input, ns, nn, s);
-	}else if(!strcmp(geometry, "rectangular")){
-		nnt = construct_rectangular(input, ns, nn, s);
-	}else if(!strcmp(geometry, "triangular")){
-		nnt = construct_triangular(input, ns, nn, s);
-	}else if(!strcmp(geometry, "alltoall")){
-		nnt = construct_alltoall(input, ns, nn, s);
-	}else if(!strcmp(geometry, "generic")){
-		nnt = construct_generic(input, ns, nn, s, nnc);
+		nnt = construct_cubic(input, ns, nn, nl, dim, s);
+	//}else if(!strcmp(geometry, "rectangular")){
+	//	nnt = construct_rectangular(input, ns, nn, s);
+	//}else if(!strcmp(geometry, "triangular")){
+	//	nnt = construct_triangular(input, ns, nn, s);
+	//}else if(!strcmp(geometry, "alltoall")){
+	//	nnt = construct_alltoall(input, ns, nn, s);
+	//}else if(!strcmp(geometry, "generic")){
+	//	nnt = construct_generic(input, ns, nn, s, nnc);
 	}else{
 		printf("The geometry \"%s\" is not known!\n", geometry);
 		exit(0);
@@ -20,8 +20,8 @@ unsigned *construct_lattice(char *geometry, FILE *input, unsigned *ns, unsigned 
 	return nnt;
 }
 
-unsigned *construct_cubic(FILE *input, unsigned *ns, unsigned *nn, double **s){
-	unsigned dim, l, d, i;
+unsigned *construct_cubic(FILE *input, unsigned *ns, unsigned *nn, unsigned *nl, unsigned *ndim, double **s){
+	unsigned d, i, l, dim;
 	unsigned *N, *nnt;
 	char boundaries[100];
 	int id;
@@ -29,6 +29,9 @@ unsigned *construct_cubic(FILE *input, unsigned *ns, unsigned *nn, double **s){
 	fscanf(input, "dimension=%u\n", &dim);
 	fscanf(input, "length=%u\n", &l);
 	fscanf(input, "boundaries=%s\n", boundaries);
+
+	*nl = l;
+	*ndim = dim;
 
 	*nn = 2*dim;
 	N = malloc(dim * sizeof(unsigned));
@@ -40,7 +43,6 @@ unsigned *construct_cubic(FILE *input, unsigned *ns, unsigned *nn, double **s){
 
 	const unsigned size = *ns;
 	const unsigned neighbours = *nn;
-	*s = malloc((size+1) * sizeof(double));
 	nnt = malloc(neighbours * size * sizeof(unsigned));
 
 	if(!strcmp(boundaries, "periodic")){
@@ -51,18 +53,18 @@ unsigned *construct_cubic(FILE *input, unsigned *ns, unsigned *nn, double **s){
 				nnt[i*neighbours + 2*d + 1] = i + ((id+l-1)%l - id)*N[d];
 			}
 		}
-	}else if(!strcmp(boundaries, "open") || !strcmp(boundaries, "closed")){
-		if(!strcmp(boundaries, "open")) (*s)[size] = 0;
-		else (*s)[size] = 1;
-		for(i = 0; i < size; i++){
-			for(d = 0; d < dim; d++){
-				id = (i/N[d]) % l;
-				if(id < l-1) nnt[i*neighbours + 2*d] = i + N[d];
-				else nnt[i*neighbours + 2*d] = size;
-				if(id > 0) nnt[i*neighbours + 2*d + 1] = i - N[d];
-				else nnt[i*neighbours + 2*d + 1] = size;
-			}
-		}
+	//}else if(!strcmp(boundaries, "open") || !strcmp(boundaries, "closed")){
+	//	if(!strcmp(boundaries, "open")) (*s)[size] = 0;
+	//	else (*s)[size] = 1;
+	//	for(i = 0; i < size; i++){
+	//		for(d = 0; d < dim; d++){
+	//			id = (i/N[d]) % l;
+	//			if(id < l-1) nnt[i*neighbours + 2*d] = i + N[d];
+	//			else nnt[i*neighbours + 2*d] = size;
+	//			if(id > 0) nnt[i*neighbours + 2*d + 1] = i - N[d];
+	//			else nnt[i*neighbours + 2*d + 1] = size;
+	//		}
+	//	}
 	}else{
 		printf("Boundary conditions \"%s\" not known!\n", boundaries);
 		exit(0);

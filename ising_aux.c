@@ -1,5 +1,10 @@
 #include "ising_aux.h"
 
+double norm(double complex x){
+	const double a = creal(x), b = cimag(x);
+	return a*a + b*b;
+}
+
 double sum_next_neighbours(double *psi, unsigned *nnt, unsigned nn, unsigned i){
 	unsigned k;
 	double sum_nn = 0;
@@ -29,9 +34,9 @@ void k_times_psi(double *psi, double *phi, double mass, unsigned *nnt, double *n
 		for(i = 0; i < ns; i++) phi[i] = weight*psi[i] + sum_next_neighbours(psi, nnt, nn, i);
 }
 
-void apply_tanh_sq_J(double *phi, double *tanh_Jphi, double sq_J, unsigned ns){
+void apply_tanh_sq_J(double *phi, double *tanh_Jphi, double sq_J, double h, unsigned ns){
 	unsigned i;
-	for(i = 0; i < ns; i++) tanh_Jphi[i] = tanh(sq_J * phi[i]);
+	for(i = 0; i < ns; i++) tanh_Jphi[i] = tanh(sq_J * phi[i] + h);
 }
 
 double sum_vector(double* x, unsigned n){
@@ -55,7 +60,12 @@ double average(double *psi, double *nnc, unsigned ns, unsigned nn){
 		return sum_vector(psi, ns)/ns;
 }
 
-void update_fields(double *psi, double *phi, double *tanh_Jphi, double mass, double sq_J, unsigned *nnt, double *nnc, unsigned ns, unsigned nn){
-	k_times_psi(psi, phi, mass, nnt, nnc, ns, nn);
-	apply_tanh_sq_J(phi, tanh_Jphi, sq_J, ns);
+void print_vec(double *x, unsigned n){
+	for(unsigned i = 0; i < n; i++) printf("%g\t", x[i]);
+	printf("\n");
 }
+
+//void update_fields(double *psi, double *phi, double *tanh_Jphi, double mass, double sq_J, unsigned *nnt, double *nnc, unsigned ns, unsigned nn){
+//	k_times_psi(psi, phi, mass, nnt, nnc, ns, nn);
+//	apply_tanh_sq_J(phi, tanh_Jphi, sq_J, ns);
+//}

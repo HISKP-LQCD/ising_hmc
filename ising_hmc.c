@@ -21,10 +21,13 @@ int main(int argc, char **argv){
 	unsigned therm, sweeps;
 	int skip;
 	unsigned nmd, flip_freq;
-	unsigned ns, nn;
+	unsigned ns, nn, nl, dim;
+	unsigned compl_dim;
 	unsigned i;
 	char start[100], restart[500], save[500], out_name[500], integrator[500], geometry[200];
-	double *psi, *p;
+	double *p;
+	double complex *psi;
+	fftw_plan fft[4]; // x/p forward/backward in every combination
 	unsigned *nnt;
 	double *nnc = NULL;
 	FILE *input;
@@ -38,15 +41,17 @@ int main(int argc, char **argv){
 	for(i = 1; i < argc; i++){
 		input = read_constants(argv[i], &J, &h, &beta, &mass, &therm, &sweeps, &length, &nmd, &flip_freq, &skip, start, restart, save, out_name, integrator, geometry);
 		printf("Read constants.\n");
-		nnt = construct_lattice(geometry, input, &ns, &nn, &psi, &nnc);
+		nnt = construct_lattice(geometry, input, &ns, &nn, &nl, &dim, NULL, &nnc);
+		compl_dim = (ns / nl) * (nl/2 + 1);
+		psi = (fftw_complex*) fftw_malloc(2*compl_dim * sizeof(fftw_complex));
 		printf("Constructed lattice.\n");
-		p = initialize(psi, nnt, nnc, &J, &h, beta, &sq_J, length, nmd, &dt, mass, &kappa, ns, nn, start, restart, therm, flip_freq, integrator, r);
+		p = initialize(psi, nnt, nnc, &J, &h, beta, &sq_J, length, nmd, &dt, mass, &kappa, ns, nn, nl, dim, start, restart, therm, flip_freq, integrator, r, fft);
 		printf("Initialized and thermalized.\n");
-		magn = measure(psi, p, nnt, nnc, sq_J, h, mass, kappa, ns, nn, sweeps, skip, flip_freq, nmd, dt, integrator, restart, out_name, r);
+		magn = measure(psi, p, nnt, nnc, sq_J, h, mass, kappa, ns, nn, nl, dim, sweeps, skip, flip_freq, nmd, dt, integrator, restart, out_name, r, fft);
 		printf("Measured.\n");
-		write_out(psi, magn, ns, sweeps, skip, restart, save, out_name);
+		write_out(p+ns, magn, ns, sweeps, skip, restart, save, out_name);
 		printf("Wrote out results.\n");
-		free_all(psi, p, nnt, nnc, magn);
+		free_all(psi, p, nnt, nnc, magn, fft);
 		printf("Finished %d calculations.\n\n", i);
 	}
 
